@@ -6,13 +6,28 @@ session_start();
 if ($_SERVER['REQUEST_METHOD'] == 'POST'){
     $name = $_POST['name'];
     $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+  $password = trim($_POST['password']);
+  if (preg_match("/^[0-9]+$/", $name)) {
+     echo "<div class='alert alert-danger text-center'>❌ Full name cannot be only numbers." . $conn->error . "</div>";
+       
+    }  
+     else{
+           
+        $check = $conn->query("SELECT * FROM users WHERE name='$name' OR email='$email'");
+        if ($check && $check->num_rows > 0) {
+             echo "<div class='alert alert-danger text-center'>❌ This name or email is already registered." . $conn->error . "</div>";
+           
+        }
+       else{     
+     $password = password_hash($_POST['password'], PASSWORD_DEFAULT); 
     $sql = "INSERT INTO users (name, email, password) VALUES ('$name','$email','$password')";
-    if ($conn->query($sql)) {
+     if ($conn->query($sql)) {
         echo "<div class='alert alert-success text-center'>💖 Account created successfully! <a href='login.php'>Login</a></div>";
     } else {
         echo "<div class='alert alert-danger text-center'>❌ Error: " . $conn->error . "</div>";
     }
+}
+}
 }
 ?>
 
@@ -89,3 +104,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
